@@ -22,5 +22,5 @@ func ReturnJSON(ctx context.Context, w http.ResponseWriter, v interface{}) {
 func HTTPErr(ctx context.Context, w http.ResponseWriter, code int, f string, args ...interface{}) {
 	msg := fmt.Sprintf(f, args...)
 	log.Errorf(ctx, msg)
-	http.Errorf(w, msg, code)
+	http.Error(w, msg, code)
 }

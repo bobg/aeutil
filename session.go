@@ -33,7 +33,7 @@ func NewSessionStore(kind, cookie string) *SessionStore {
 
 func (ss *SessionStore) Get(ctx context.Context, r *http.Request) (*datastore.Key, *Session, bool, error) {
 	newSession := func() (*datastore.Key, *Session, bool, error) {
-		k, s, err := ss.New(ctx)
+		k, s, err := ss.New(ctx, r)
 		return k, s, true, err
 	}
 	cookie, err := r.Cookie(ss.cookie)
@@ -52,13 +52,13 @@ func (ss *SessionStore) Get(ctx context.Context, r *http.Request) (*datastore.Ke
 	return k, &s, false, nil
 }
 
-func (ss *SessionStore) New(ctx context.Context) (*datastore.Key, *Session, error) {
+func (ss *SessionStore) New(ctx context.Context, r *http.Request) (*datastore.Key, *Session, error) {
 	var ident [32]byte
 	_, err := rand.Read(ident[:])
 	if err != nil {
 		return nil, nil, err
 	}
-	identHex := hex.EncodeToString(ident)
+	identHex := hex.EncodeToString(ident[:])
 	geoPoint, _ := GetGeoPoint(r)
 	s := &Session{
 		Ident:        identHex,
@@ -66,7 +66,7 @@ func (ss *SessionStore) New(ctx context.Context) (*datastore.Key, *Session, erro
 		CreatedWhere: geoPoint,
 	}
 	k := datastore.NewKey(ctx, ss.kind, identHex, 0, nil)
-	_, err := datastore.Put(ctx, k, s)
+	_, err = datastore.Put(ctx, k, s)
 	return k, s, err
 }
 
