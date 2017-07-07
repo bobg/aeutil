@@ -3,7 +3,7 @@ package aeutil
 import (
 	"context"
 
-	"cloud.google.com/go/datastore"
+	"google.golang.org/appengine/datastore"
 )
 
 type (
