@@ -2,7 +2,9 @@ package aeutil
 
 import (
 	"context"
+	"errors"
 	"math/rand"
+	"strings"
 	"time"
 
 	"google.golang.org/appengine/datastore"
@@ -18,6 +20,8 @@ type User struct {
 type UserStore struct {
 	kind string
 }
+
+var ErrNotVerified = errors.New("not verified")
 
 func NewUserStore(kind string) *UserStore {
 	return &UserStore{kind: kind}
@@ -59,4 +63,11 @@ func (us *UserStore) Verify(ctx context.Context, k *datastore.Key, code int) err
 
 func newVerificationCode() int {
 	return 100000 + rand.Intn(900000)
+}
+
+func canonicalizeEmail(s string) string {
+	// TODO: better canonicalization
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+	return s
 }
